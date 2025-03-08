@@ -51,7 +51,6 @@ class Payments(models.Model):
         verbose_name="Пользователь",
     )
     payment_date = models.DateField(
-        auto_now_add=True,
         verbose_name="Дата оплаты",
         null=True,
         blank=True,
