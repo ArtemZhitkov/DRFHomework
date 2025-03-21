@@ -1,14 +1,22 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-from materials.models import Course, Lesson
-from materials.serializers import CourseSerializer, LessonSerializer
+from materials.models import Course, Lesson, Subscription
+from materials.paginators import CustomPagination
+from materials.serializers import (
+    CourseSerializer,
+    LessonSerializer,
+    SubscriptionSerializer,
+)
 from users.permissions import IsModerators, IsOwner
 
 
 class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
+    pagination_class = CustomPagination
 
     def get_permissions(self):
         if self.action == "create":
@@ -16,7 +24,10 @@ class CourseViewSet(viewsets.ModelViewSet):
         elif self.action in ["update", "retrieve"]:
             self.permission_classes = (IsModerators | IsOwner,)
         elif self.action == "destroy":
-            self.permission_classes = (~IsModerators, IsOwner,)
+            self.permission_classes = (
+                ~IsModerators,
+                IsOwner,
+            )
         return super().get_permissions()
 
     def perform_create(self, serializer):
@@ -24,14 +35,17 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if IsModerators().has_permission(self.request, self):
-            return Lesson.objects.all()
+            return Course.objects.all()
         else:
-            return Lesson.objects.filter(owner=self.request.user)
+            return Course.objects.filter(owner=self.request.user)
 
 
 class LessonCreateAPIView(generics.CreateAPIView):
     serializer_class = LessonSerializer
-    permission_classes = (IsAuthenticated, ~IsModerators,)
+    permission_classes = (
+        IsAuthenticated,
+        ~IsModerators,
+    )
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -40,13 +54,20 @@ class LessonCreateAPIView(generics.CreateAPIView):
 class LessonRetrieveAPIView(generics.RetrieveAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
-    permission_classes = (IsAuthenticated, IsModerators | IsOwner,)
+    permission_classes = (
+        IsAuthenticated,
+        IsModerators | IsOwner,
+    )
 
 
 class LessonListAPIView(generics.ListAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
-    permission_classes = (IsAuthenticated, IsModerators | IsOwner,)
+    permission_classes = (
+        IsAuthenticated,
+        IsModerators | IsOwner,
+    )
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         if IsModerators().has_permission(self.request, self):
@@ -58,9 +79,36 @@ class LessonListAPIView(generics.ListAPIView):
 class LessonUpdateAPIView(generics.UpdateAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
-    permission_classes = (IsAuthenticated, IsModerators | IsOwner,)
+    permission_classes = (
+        IsAuthenticated,
+        IsModerators | IsOwner,
+    )
 
 
 class LessonDestroyAPIView(generics.DestroyAPIView):
     queryset = Lesson.objects.all()
-    permission_classes = (IsAuthenticated, IsOwner,)
+    permission_classes = (
+        IsAuthenticated,
+        IsOwner,
+    )
+
+
+class SubscriptionCreateAPIView(generics.CreateAPIView):
+    serializer_class = SubscriptionSerializer
+    permission_classes = (IsAuthenticated,)
+    queryset = Subscription.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        user = self.request.user
+        course_id = self.request.data.get("course")
+        course_item = get_object_or_404(Course, id=course_id)
+        subs_item = Subscription.objects.filter(user=user, course=course_item)
+
+        if subs_item.exists():
+            subs_item.delete()
+            message = "подписка удалена"
+        else:
+            Subscription.objects.create(user=user, course=course_item, is_active=True)
+            message = "подписка добавлена"
+
+        return Response({"message": message})
