@@ -25,7 +25,7 @@ class CourseViewSet(viewsets.ModelViewSet):
             self.permission_classes = (IsModerators | IsOwner,)
         elif self.action == "destroy":
             self.permission_classes = (
-                ~IsModerators,
+                # ~IsModerators,
                 IsOwner,
             )
         return super().get_permissions()
@@ -106,9 +106,9 @@ class SubscriptionCreateAPIView(generics.CreateAPIView):
 
         if subs_item.exists():
             subs_item.delete()
-            message = "подписка удалена"
+            message = "Подписка удалена"
         else:
             Subscription.objects.create(user=user, course=course_item, is_active=True)
-            message = "подписка добавлена"
+            message = "Подписка добавлена"
 
         return Response({"message": message})
