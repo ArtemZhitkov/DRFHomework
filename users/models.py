@@ -51,6 +51,7 @@ class Payments(models.Model):
         verbose_name="Пользователь",
     )
     payment_date = models.DateField(
+        auto_now=True,
         verbose_name="Дата оплаты",
         null=True,
         blank=True,
@@ -74,6 +75,12 @@ class Payments(models.Model):
     payment_amount = models.PositiveIntegerField(verbose_name="Сумма оплаты")
     payment_method = models.CharField(
         max_length=50, verbose_name="Способ оплаты", choices=METHOD_CHOICES
+    )
+    payment_url = models.URLField(
+        max_length=450, verbose_name="Ссылка на оплату", null=True, blank=True
+    )
+    session_id = models.CharField(
+        max_length=255, verbose_name="ID сессии", blank=True, null=True
     )
 
     def __str__(self):
