@@ -1,10 +1,11 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
 from rest_framework.filters import OrderingFilter
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .models import User, Payments
 from .serializers import UserSerializer, PaymentsSerializer
+from .services import create_price_in_stripe, create_session_in_stripe, create_product_in_stripe
 
 
 class UserCreateAPIView(generics.CreateAPIView):
@@ -43,3 +44,18 @@ class PaymentsListApiView(generics.ListAPIView):
         "payment_method",
     )
     ordering_fields = ("payment_date",)
+
+
+class PaymentsCreateAPIView(generics.CreateAPIView):
+    serializer_class = PaymentsSerializer
+    queryset = Payments.objects.all()
+
+    def perform_create(self, serializer):
+        payment = serializer.save()
+        payment.user = self.request.user
+        stripe_product_id = create_product_in_stripe(payment)
+        price = create_price_in_stripe(stripe_product_id, payment.payment_amount)
+        session_id, payment_link = create_session_in_stripe(price)
+        payment.session_id = session_id
+        payment.payment_url = payment_link
+        payment.save()
