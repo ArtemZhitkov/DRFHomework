@@ -10,6 +10,7 @@ from materials.serializers import (
     LessonSerializer,
     SubscriptionSerializer,
 )
+from materials.tasks import send_mail_about_course_update
 from users.permissions import IsModerators, IsOwner
 
 
@@ -39,6 +40,10 @@ class CourseViewSet(viewsets.ModelViewSet):
         else:
             return Course.objects.filter(owner=self.request.user)
 
+    def perform_update(self, serializer):
+        updated_course = serializer.save()
+        send_mail_about_course_update.delay(updated_course)
+        updated_course.save()
 
 class LessonCreateAPIView(generics.CreateAPIView):
     serializer_class = LessonSerializer
