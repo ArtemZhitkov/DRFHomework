@@ -46,6 +46,18 @@ services:
     env_file:
       - .env
 
+  celery-beat:
+    build: .
+    command:
+      bash -c "celery -A config beat --loglevel=info"
+    restart: on-failure
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - db
+    env_file:
+      - .env
 
 
 volumes:
