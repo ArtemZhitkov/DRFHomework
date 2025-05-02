@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import timedelta
 
 from django.conf.global_settings import AUTH_USER_MODEL
@@ -118,6 +119,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -168,3 +171,11 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 EMAIL_USE_SSL = False if os.getenv("EMAIL_USE_SSL") else True
 EMAIL_USE_TLS = True if os.getenv("EMAIL_USE_TLS") else False
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+
+if "test" in sys.argv:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(BASE_DIR, "test_db.sqlite3"),
+        }
+    }
