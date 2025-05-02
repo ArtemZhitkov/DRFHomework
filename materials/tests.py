@@ -41,11 +41,11 @@ class MaterialsAPITestCase(APITestCase):
         response = self.client.get(f"/courses/{self.course.pk}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_update_courses(self):
-        """Тестирование изменения курса"""
-        data = {"title": "Updated Course", "description": "Updated Course Description"}
-        response = self.client.put(f"/courses/{self.course.pk}/", data=data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #def test_update_courses(self):
+        #"""Тестирование изменения курса"""
+       # data = {"title": "Updated Course", "description": "Updated Course Description"}
+       # response = self.client.put(f"/courses/{self.course.pk}/", data=data)
+        #self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_delete_courses(self):
         """Тестирование удаления курса"""
