@@ -62,7 +62,6 @@ class MaterialsAPITestCase(APITestCase):
             "owner": self.user.pk,
         }
         response = self.client.post("/lessons/create/", data=data)
-        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_get_lessons(self):
