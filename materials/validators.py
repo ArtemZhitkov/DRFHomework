@@ -9,9 +9,10 @@ class UrlValidator:
         self.field = field
 
     def __call__(self, value):
-        reg = re.compile("^(https?://)?(www\.)?youtube\.com/.+$")
+        reg = re.compile(r"^(https?://)?(www\.)?youtube\.com/.+$")
         tmp_val = dict(value).get(self.field)
         if not bool(reg.match(tmp_val)):
             raise serializers.ValidationError(
-                f"Неверный URL-адрес. Пожалуйста, укажите правильный URL-адрес YouTube. Нельзя размещать ссылки на сторонние образовательные платформы или личные сайты"
+                "Неверный URL-адрес. Пожалуйста, укажите правильный URL-адрес YouTube. "
+                "Нельзя размещать ссылки на сторонние образовательные платформы или личные сайты"
             )

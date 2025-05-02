@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from materials.models import Course, Lesson, Subscription
+from materials.models import Course, Lesson
 from users.models import User
 
 
@@ -15,7 +15,7 @@ class MaterialsAPITestCase(APITestCase):
         self.lesson = Lesson.objects.create(
             title="Test Lesson",
             description="Test Lesson Description",
-            video_url = "https://youtube.com/test",
+            video_url="https://youtube.com/test",
             course=self.course,
             owner=self.user,
         )
@@ -77,12 +77,13 @@ class MaterialsAPITestCase(APITestCase):
 
     def test_update_lessons(self):
         """Тестирование изменения урока"""
-        data = {"title": "Updated Lesson",
-                "description": "Updated Lesson Description",
-                "video_url": "https://youtube.com/updated",
-                "course": self.course.pk,
-                "owner": self.user.pk,
-                }
+        data = {
+            "title": "Updated Lesson",
+            "description": "Updated Lesson Description",
+            "video_url": "https://youtube.com/updated",
+            "course": self.course.pk,
+            "owner": self.user.pk,
+        }
         response = self.client.put(f"/lessons/{self.lesson.pk}/update/", data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
