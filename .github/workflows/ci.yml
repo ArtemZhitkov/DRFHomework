@@ -46,10 +46,8 @@ jobs:
       - name: Run tests
         run: python manage.py test
 
-  build:
-    needs: tests
+  copy_files_in_server:
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -57,7 +55,24 @@ jobs:
       - name: Create .env file
         run: |
           touch .env
-          echo '"${{ secrets.ENV_FILE }}"' | sed "s/\"//g" > .env
+          echo '"${{ secrets.ENV_FILE }}"' | sed "s/\"//g" > .env  # Удаление кавычек в файле. P.S. их не должно быть в секретах
+
+      - name: copy file
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: ".env"
+          target: ${{ secrets.DEPLOY_DIR }}
+
+  build:
+    needs: tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
 
       - name: Log in in Docker hub
         run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
