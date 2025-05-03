@@ -78,13 +78,13 @@ jobs:
           echo '"${{ secrets.ENV_FILE }}"' | sed "s/\"//g" > .env  # Удаление кавычек в файле. P.S. их не должно быть в секретах
 
       - name: copy file
-        uses: appleboy/scp-action@v0.1.7
+        uses: cross-the-world/scp-pipeline@master
         with:
           host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          source: "docker-compose.yml,.env"
-          target: ${{ secrets.DEPLOY_DIR }}
+          user: ${{ secrets.SSH_USER }}
+          pass: ${{ secrets.SSH_KEY }}
+          local: "./docker-compose.yml,./.env"
+          remote: ${{ secrets.DEPLOY_DIR }}
 
   run_server:
     needs: [build, copy_files_in_server]
