@@ -73,15 +73,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Add SSH key
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo "$SSH_CONFIG" > ~/.ssh/config
-          chmod 600 ~/.ssh/config
-          eval $(ssh-agent -s)
-          ssh-add <(echo "$SSH_PRIVATE_KEY")
-
       - name: Deploy to server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << EOF
