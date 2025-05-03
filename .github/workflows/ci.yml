@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -19,16 +19,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8
 
-      - name: Run flake8
+      - name: Run Flake8
         run: flake8 .
 
   tests:
     needs: lint
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -40,17 +39,38 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Set environment variables
-        run: echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
-
       - name: Run tests
         run: python manage.py test
+        env:
+          SECRET_KEY: test_secret_key
+
+  build:
+    runs-on: ubuntu-latest
+    needs: tests
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/drf_homework:latest .
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/nginx:latest nginx/.
+
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/drf_homework:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nginx:latest
 
   copy_files_in_server:
+    needs: tests
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Create .env file
         run: |
@@ -58,46 +78,28 @@ jobs:
           echo '"${{ secrets.ENV_FILE }}"' | sed "s/\"//g" > .env  # Удаление кавычек в файле. P.S. их не должно быть в секретах
 
       - name: copy file
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v0.1.3
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: ".env"
+          source: "docker-compose.yml,.env"
           target: ${{ secrets.DEPLOY_DIR }}
 
-  build:
-    needs: tests
+  run_server:
+    needs: [build, copy_files_in_server]
     runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Log in in Docker hub
-        run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }} .
-
-      - name: Push Docker image in Docker hub
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-
     steps:
       - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Deploy to server
+      - name: Run Server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << EOF
-          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
-          docker stop myapp || true
-          docker rm myapp || true
-          docker run -d --name myapp -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+          ssh -o StrictHostKeyChecking=no -vT ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd ${{ secrets.DEPLOY_DIR }}
+            sudo docker compose down
+            sudo docker container rm $(docker ps -a -q)
+            sudo docker compose up -d --build
           EOF
