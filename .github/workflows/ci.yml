@@ -77,14 +77,14 @@ jobs:
           touch .env
           echo '"${{ secrets.ENV_FILE }}"' | sed "s/\"//g" > .env  # Удаление кавычек в файле. P.S. их не должно быть в секретах
 
-#      - name: copy file
-#        uses: appleboy/scp-action@v0.1.7
-#        with:
-#          host: ${{ secrets.SERVER_IP }}
-#          username: ${{ secrets.SSH_USER }}
-#          key: ${{ secrets.SSH_KEY }}
-#          source: "docker-compose.yml,.env"
-#          target: ${{ secrets.DEPLOY_DIR }}
+      - name: copy file
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "docker-compose.yml,.env"
+          target: ${{ secrets.DEPLOY_DIR }}
 
   run_server:
     needs: [build, copy_files_in_server]
@@ -98,6 +98,7 @@ jobs:
       - name: Run Server
         run: |
           ssh -o StrictHostKeyChecking=no -vT ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
             cd ${{ secrets.DEPLOY_DIR }}
             sudo docker compose down
             sudo docker container rm $(docker ps -a -q)
