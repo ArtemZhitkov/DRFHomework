@@ -62,8 +62,8 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/drf_homework:${{ github.sha }} .
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nginx:${{ github.sha }} .
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/drf_homework:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nginx:${{ github.sha }}
 
   copy_files_in_server:
     needs: tests
