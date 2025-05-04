@@ -63,7 +63,7 @@ jobs:
       - name: Push Docker image to Docker Hub
         run: |
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/drf_homework:latest
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nginx:latest nginx/
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nginx:latest
 
   copy_files_in_server:
     needs: tests
