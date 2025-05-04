@@ -58,7 +58,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/drf_homework:latest .
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/nginx:latest nginx/.
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/nginx:latest .
 
       - name: Push Docker image to Docker Hub
         run: |
