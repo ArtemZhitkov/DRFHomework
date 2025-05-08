@@ -99,6 +99,8 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -vT ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd ${{ secrets.DEPLOY_DIR }}
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/drf_homework:latest
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/nginx:latest
             sudo docker compose down
             sudo docker container rm $(docker ps -a -q)
             sudo docker compose up -d --build
