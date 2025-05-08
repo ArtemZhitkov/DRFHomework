@@ -2,7 +2,7 @@ services:
   app:
 #    build: .
     image: artemzhitkov/drf_homework
-    command: sh -c "python3 manage.py collectstatic --no-input && gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+    command: sh -c "python manage.py collectstatic --no-input && gunicorn config.wsgi:application --bind 0.0.0.0:8000"
 
     volumes:
       - .:/app
@@ -18,7 +18,7 @@ services:
   nginx:
 #    build:
 #      context: ./nginx
-    image: nginx:latest
+    image: artemzhitkov/nginx
     ports:
       - "80:80"
     volumes:
