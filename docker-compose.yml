@@ -16,9 +16,9 @@ services:
       - .env
 
   nginx:
-#    build:
-#      context: ./nginx
-    image: artemzhitkov/nginx
+    build:
+      context: ./nginx
+#    image: artemzhitkov/nginx
     ports:
       - "80:80"
     volumes:
