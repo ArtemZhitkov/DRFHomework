@@ -57,12 +57,12 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/test_project:latest .
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/drf_homework:latest .
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/nginx:latest nginx/.
 
       - name: Push Docker image to Docker Hub
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/test_project:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/drf_homework:latest
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nginx:latest
 
   copy_files_in_server:
@@ -83,7 +83,7 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "docker-compose.yml,.env, Dockerfile"
+          source: "docker-compose.yml,.env"
           target: ${{ secrets.DEPLOY_DIR }}
 
   run_server:
@@ -99,7 +99,6 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -vT ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd ${{ secrets.DEPLOY_DIR }}
-            echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
             sudo docker compose down
             sudo docker container rm $(docker ps -a -q)
             sudo docker compose up -d --build
