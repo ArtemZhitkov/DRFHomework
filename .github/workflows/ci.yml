@@ -101,5 +101,7 @@ jobs:
             cd ${{ secrets.DEPLOY_DIR }}
             sudo docker-compose down
             sudo docker container prune -f
-            sudo docker-compose up -d
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/drf_homework:latest
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/nginx:latest
+            sudo docker-compose up -d 
           EOF
