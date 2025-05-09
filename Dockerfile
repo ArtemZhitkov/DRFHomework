@@ -11,7 +11,7 @@ COPY requirements.txt ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . /app/
+COPY . .
 
 RUN mkdir -p /app/staticfiles && chmod -R 755 /app/staticfiles
 
