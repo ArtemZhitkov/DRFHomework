@@ -63,12 +63,9 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: ".env"
+          source: "*"
           target: ${{ secrets.DEPLOY_DIR }}
 
-      - name: Copy project files to server
-        run: |
-          rsync -avz --exclude '__pycache__' . ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.DEPLOY_DIR }}
 
   run_server:
     needs: [ copy_files_in_server ]
