@@ -7,7 +7,7 @@ services:
     command: sh -c "python manage.py collectstatic --no-input && python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000"
 
     volumes:
-      - .:/app
+#      - .:/app
       - static_volume:/app/staticfiles
     expose:
       - "8000"
@@ -53,8 +53,8 @@ services:
     command:
       bash -c "celery -A config worker --loglevel=info --pool=solo"
     restart: on-failure
-    volumes:
-      - .:/app
+#    volumes:
+#      - .:/app
     depends_on:
       - redis
       - db
@@ -66,8 +66,8 @@ services:
     command:
       bash -c "celery -A config beat --loglevel=info"
     restart: on-failure
-    volumes:
-      - .:/app
+#    volumes:
+#      - .:/app
     depends_on:
       - redis
       - db
