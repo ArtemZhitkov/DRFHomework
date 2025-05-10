@@ -2,8 +2,8 @@ version: "3.9"
 
 services:
   app:
-#    build: .
-    image: artemzhitkov/drf_homework
+    build: .
+#    image: artemzhitkov/drf_homework
     command: sh -c "python manage.py collectstatic --no-input && python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000"
 
     volumes:
