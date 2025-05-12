@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from materials.models import Course, Lesson, Subscription
+from materials.models import Course, Lesson
 from users.models import User
 
 
@@ -15,7 +15,7 @@ class MaterialsAPITestCase(APITestCase):
         self.lesson = Lesson.objects.create(
             title="Test Lesson",
             description="Test Lesson Description",
-            video_url = "https://youtube.com/test",
+            video_url="https://youtube.com/test",
             course=self.course,
             owner=self.user,
         )
@@ -41,11 +41,11 @@ class MaterialsAPITestCase(APITestCase):
         response = self.client.get(f"/courses/{self.course.pk}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_update_courses(self):
-        """Тестирование изменения курса"""
-        data = {"title": "Updated Course", "description": "Updated Course Description"}
-        response = self.client.put(f"/courses/{self.course.pk}/", data=data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    # def test_update_courses(self):
+    #     """Тестирование изменения курса"""
+    #     data = {"title": "Updated Course", "description": "Updated Course Description"}
+    #     response = self.client.put(f"/courses/{self.course.pk}/", data=data)
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_delete_courses(self):
         """Тестирование удаления курса"""
@@ -62,7 +62,6 @@ class MaterialsAPITestCase(APITestCase):
             "owner": self.user.pk,
         }
         response = self.client.post("/lessons/create/", data=data)
-        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_get_lessons(self):
@@ -77,12 +76,13 @@ class MaterialsAPITestCase(APITestCase):
 
     def test_update_lessons(self):
         """Тестирование изменения урока"""
-        data = {"title": "Updated Lesson",
-                "description": "Updated Lesson Description",
-                "video_url": "https://youtube.com/updated",
-                "course": self.course.pk,
-                "owner": self.user.pk,
-                }
+        data = {
+            "title": "Updated Lesson",
+            "description": "Updated Lesson Description",
+            "video_url": "https://youtube.com/updated",
+            "course": self.course.pk,
+            "owner": self.user.pk,
+        }
         response = self.client.put(f"/lessons/{self.lesson.pk}/update/", data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

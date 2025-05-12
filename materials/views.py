@@ -45,6 +45,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         send_mail_about_course_update.delay(updated_course)
         updated_course.save()
 
+
 class LessonCreateAPIView(generics.CreateAPIView):
     serializer_class = LessonSerializer
     permission_classes = (

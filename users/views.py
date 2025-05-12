@@ -1,11 +1,15 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
 from rest_framework.filters import OrderingFilter
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 
 from .models import User, Payments
 from .serializers import UserSerializer, PaymentsSerializer
-from .services import create_price_in_stripe, create_session_in_stripe, create_product_in_stripe
+from .services import (
+    create_price_in_stripe,
+    create_session_in_stripe,
+    create_product_in_stripe,
+)
 
 
 class UserCreateAPIView(generics.CreateAPIView):
@@ -27,7 +31,6 @@ class UserRetrieveAPIView(generics.RetrieveAPIView):
 class UserUpdateAPIView(generics.UpdateAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
-
 
 
 class UserDestroyAPIView(generics.DestroyAPIView):
